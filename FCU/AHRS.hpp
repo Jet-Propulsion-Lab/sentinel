@@ -3,7 +3,8 @@
 #include "Physics.hpp"
 
 #ifndef AHRS_DEAD_RECKON_STEP
-    #define AHRS_DEAD_RECKON_STEP 0.01
+    // How much time (in seconds) should dead reckoning wait before kicking in
+    #define AHRS_DEAD_RECKON_STEP 0.1
 #endif
 
 /// ### Singleton class for the Attitude Heading Reference System
@@ -23,6 +24,11 @@ private:
     Vector3 Acceleration = Vector3(0, 0, 0); // Initializes to ZERO because we always start with no acceleration
     Vector3 AngularVelocity = Vector3(0, 0, 0); // Initializes to ZERO because we always start with no angular velocity
     Vector3 AngularAcceleration = Vector3(0, 0, 0); // Initializes to ZERO because we always start with no angular acceleration
+
+    double LastPositionReckon = 0;
+    double LastRotationReckon = 0;
+    double LastVelocityReckon = 0;
+    double LastAngVelocReckon = 0;
 
     // Private Constructor to prevent creation of our singleton
     AHRS() {}
@@ -58,4 +64,25 @@ public:
     /// ### Gets the current angular acceleration of the rocket relative to HOME
     /// @returns X is the pitch acceleration, Y is the yaw acceleration, and Z is the roll acceleration
     Vector3 GetAngularAcceleration() { return AngularAcceleration; }
+
+    /// ### Sets the current position of the rocket relative to HOME
+    /// @param TIME_STANDARD The current time in seconds
+    void UpdateDeadReckon(const double& TIME_STANDARD){
+        if(TIME_STANDARD-LastRotationReckon > AHRS_DEAD_RECKON_STEP){
+            Rotation = Rotation + (AngularVelocity * (TIME_STANDARD-LastRotationReckon));
+            LastAngVelocReckon = TIME_STANDARD;
+        }
+        if(TIME_STANDARD-LastAngVelocReckon > AHRS_DEAD_RECKON_STEP){
+            AngularVelocity = AngularVelocity + (AngularAcceleration * (TIME_STANDARD-LastAngVelocReckon));
+            LastVelocityReckon = TIME_STANDARD;
+        }
+        if(TIME_STANDARD-LastVelocityReckon > AHRS_DEAD_RECKON_STEP){
+            Velocity = Velocity + (Acceleration * (TIME_STANDARD-LastVelocityReckon));
+            LastVelocityReckon = TIME_STANDARD;
+        }
+        if(TIME_STANDARD-LastPositionReckon > AHRS_DEAD_RECKON_STEP){
+            Position = Position + (Velocity * (TIME_STANDARD-LastPositionReckon));
+            LastPositionReckon = TIME_STANDARD;
+        }
+    }
 };
