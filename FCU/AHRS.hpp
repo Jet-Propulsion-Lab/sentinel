@@ -18,22 +18,35 @@ private:
 
     bool Lock = false; // We will make a MUTUAL EXCLUSION LOCK (MUTEX) to lock the AHRS from being written to by multiple threads
 
-    Vector3 Position = Vector3(0, 0, 0); // Initializes to ZERO because we always start at HOME
-    Vector3 Rotation = Vector3(0, 0, 0); // Initializes to ZERO because we always start with no rotation
-    Vector3 Velocity = Vector3(0, 0, 0); // Initializes to ZERO because we always start with no velocity
-    Vector3 Acceleration = Vector3(0, 0, 0); // Initializes to ZERO because we always start with no acceleration
-    Vector3 AngularVelocity = Vector3(0, 0, 0); // Initializes to ZERO because we always start with no angular velocity
-    Vector3 AngularAcceleration = Vector3(0, 0, 0); // Initializes to ZERO because we always start with no angular acceleration
+    static Vector3 Position; // Initializes to ZERO because we always start at HOME
+    static Vector3 Rotation; // Initializes to ZERO because we always start with no rotation
+    static Vector3 Velocity; // Initializes to ZERO because we always start with no velocity
+    static Vector3 Acceleration; // Initializes to ZERO because we always start with no acceleration
+    static Vector3 AngularVelocity; // Initializes to ZERO because we always start with no angular velocity
+    static Vector3 AngularAcceleration; // Initializes to ZERO because we always start with no angular acceleration
 
-    double LastPositionReckon = 0;
-    double LastRotationReckon = 0;
-    double LastVelocityReckon = 0;
-    double LastAngVelocReckon = 0;
+    static double LastPositionReckon;
+    static double LastRotationReckon;
+    static double LastVelocityReckon;
+    static double LastAngVelocReckon;
 
     // Private Constructor to prevent creation of our singleton
     AHRS() {}
 
 public:
+    // Deleting the copy constructor to prevent copies
+    AHRS(const AHRS& obj) = delete;
+
+    // Static method to get our Singleton AHRS
+    static AHRS* getInstance() {
+        if (AttitudeHeadingReferenceSystem == nullptr) {
+            if (AttitudeHeadingReferenceSystem == nullptr) {
+                AttitudeHeadingReferenceSystem = new AHRS();
+            }
+        }
+        return AttitudeHeadingReferenceSystem;
+    }
+
     // ### Specific access is needed to *write* to the AHRS
     // @returns true if access is granted (automatically locks AHRS until released), false if access is denied
     bool RequestAccess() { if (!Lock) { Lock = true; return true; } else return false; };
@@ -43,27 +56,27 @@ public:
     
     /// ### Gets the current position of the rocket relative to HOME
     /// @returns X is the East-West position, Y is the North-South position, and Z is the Up-Down position
-    Vector3 GetPosition() { return Position; }
+    const Vector3& GetPosition() { return Position; }
 
     /// ### Gets the current rotation of the rocket relative to HOME
     /// @returns X is the pitch, Y is the yaw, and Z is the roll
-    Vector3 GetRotation() { return Rotation; }
+    const Vector3& GetRotation() { return Rotation; }
 
     /// ### Gets the current velocity of the rocket relative to HOME
     /// @returns X is the East-West velocity, Y is the North-South velocity, and Z is the Up-Down velocity
-    Vector3 GetVelocity() { return Velocity; }
+    const Vector3& GetVelocity() { return Velocity; }
 
     /// ### Gets the current acceleration of the rocket relative to HOME
     /// @returns X is the East-West acceleration, Y is the North-South acceleration, and Z is the Up-Down acceleration
-    Vector3 GetAcceleration() { return Acceleration; }
+    const Vector3& GetAcceleration() { return Acceleration; }
 
     /// ### Gets the current angular velocity of the rocket relative to HOME
     /// @returns X is the pitch rate, Y is the yaw rate, and Z is the roll rate
-    Vector3 GetAngularVelocity() { return AngularVelocity; }
+    const Vector3& GetAngularVelocity() { return AngularVelocity; }
 
     /// ### Gets the current angular acceleration of the rocket relative to HOME
     /// @returns X is the pitch acceleration, Y is the yaw acceleration, and Z is the roll acceleration
-    Vector3 GetAngularAcceleration() { return AngularAcceleration; }
+    const Vector3& GetAngularAcceleration() { return AngularAcceleration; }
 
     /// ### Sets the current position of the rocket relative to HOME
     /// @param TIME_STANDARD The current time in seconds
@@ -86,3 +99,15 @@ public:
         }
     }
 };
+
+Vector3 AHRS::Position = Vector3(0, 0, 0); // Initializes to ZERO because we always start at HOME
+Vector3 AHRS::Rotation = Vector3(0, 0, 0); // Initializes to ZERO because we always start with no rotation
+Vector3 AHRS::Velocity = Vector3(0, 0, 0); // Initializes to ZERO because we always start with no velocity
+Vector3 AHRS::Acceleration = Vector3(0, 0, 0); // Initializes to ZERO because we always start with no acceleration
+Vector3 AHRS::AngularVelocity = Vector3(0, 0, 0); // Initializes to ZERO because we always start with no angular velocity
+Vector3 AHRS::AngularAcceleration = Vector3(0, 0, 0); // Initializes to ZERO because we always start with no angular acceleration
+
+double AHRS::LastPositionReckon = 0;
+double AHRS::LastRotationReckon = 0;
+double AHRS::LastVelocityReckon = 0;
+double AHRS::LastAngVelocReckon = 0;
