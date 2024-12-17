@@ -1,0 +1,3 @@
+This branch contains the code for the Telemetry Logger Module.
+
+The functionality of this code is to get Telemetry Logs, and then write them to a log fil
